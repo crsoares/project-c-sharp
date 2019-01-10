@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Project.Models;
 using System.Data.SqlClient;
 using Microsoft.AspNetCore.Mvc;
+using Dapper.Contrib.Extensions;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
-using Dapper;
-using Project.Models;
 
 namespace Project.Controllers
 {
@@ -14,12 +12,19 @@ namespace Project.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        [HttpGet]
-        public IEnumerable<User> Get([FromServices]IConfiguration configuration)
+        private IConfiguration _config;
+
+        public UserController(IConfiguration configuration)
         {
-            using (SqlConnection conexao = new SqlConnection(configuration.GetConnectionString("Project")))
+            _config = configuration;
+        }
+
+        [HttpGet("all")]
+        public IEnumerable<User> Get()
+        {
+            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
             {
-                return conexao.Query<User>("SELECT * FROM dbo.users");
+                return conexao.GetAll<User>();
             }
         }
     }
