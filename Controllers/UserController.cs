@@ -27,5 +27,14 @@ namespace Project.Controllers
                 return conexao.GetAll<User>();
             }
         }
+
+        [HttpGet("find/{id}")]
+        public User GetUser(int id)
+        {
+            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
+            {
+                return conexao.Get<User>(id);
+            }
+        }
     }
 }
