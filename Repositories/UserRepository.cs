@@ -1,7 +1,9 @@
 using System;
+using Dapper;
+using System.Linq;
 using Project.Models;
 using System.Data.SqlClient;
-using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using Dapper.Contrib.Extensions;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
@@ -47,9 +49,21 @@ namespace Project.Repositories
         public dynamic delete(int id)
         {
             using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-             {
+            {
                 return conexao.Delete(new User(){ Id = id });
-             }
+            }
+        }
+
+        public User findByEmail(string email)
+        {
+            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
+            {
+                return conexao.QueryFirstOrDefault<User>(
+                    "SELECT id, name, email, password " +
+                    "FROM dbo.users " +
+                    "WHERE email = @Email", new { Email = email }
+                );
+            }
         }
     }
 }
