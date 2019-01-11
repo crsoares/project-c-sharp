@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Dapper.Contrib.Extensions;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authorization;
 using Project.Repositories;
 
 namespace Project.Controllers
@@ -15,29 +16,33 @@ namespace Project.Controllers
     {
         private IUserRepository _repoUser;
 
-        public UserController(IUserRepository repoUser)
+        public UserController([FromServices]UserRepository repoUser)
         {
             _repoUser = repoUser;
         }
 
+        [Authorize("Bearer")]
         [HttpGet("all")]
         public IEnumerable<User> Get()
         {
             return _repoUser.all();
         }
 
+        [Authorize("Bearer")]
         [HttpGet("find/{id}")]
         public User GetUser(int id)
         {
             return _repoUser.find(id);
         }
 
+        [Authorize("Bearer")]
         [HttpPost("store")]
         public dynamic Post(User user)
         {
             return _repoUser.create(user);
         }
 
+        [Authorize("Bearer")]
         [HttpPut("update/{id}")]
         public dynamic Put(int id, User user)
         {
@@ -50,6 +55,7 @@ namespace Project.Controllers
             return BadRequest();
         }
 
+        [Authorize("Bearer")]
         [HttpDelete("destroy/{id}")]
         public dynamic Delete(int id)
         {
