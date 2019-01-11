@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Dapper.Contrib.Extensions;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using Project.Repositories;
 
 namespace Project.Controllers
 {
@@ -12,29 +13,47 @@ namespace Project.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private IConfiguration _config;
+        private IUserRepository _repoUser;
 
-        public UserController(IConfiguration configuration)
+        public UserController(IUserRepository repoUser)
         {
-            _config = configuration;
+            _repoUser = repoUser;
         }
 
         [HttpGet("all")]
         public IEnumerable<User> Get()
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-            {
-                return conexao.GetAll<User>();
-            }
+            return _repoUser.all();
         }
 
         [HttpGet("find/{id}")]
         public User GetUser(int id)
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-            {
-                return conexao.Get<User>(id);
+            return _repoUser.find(id);
+        }
+
+        [HttpPost("store")]
+        public dynamic Post(User user)
+        {
+            return _repoUser.create(user);
+        }
+
+        [HttpPut("update/{id}")]
+        public dynamic Put(int id, User user)
+        {
+            var result = _repoUser.update(id, user);
+
+            if (result) {
+                return user;
             }
+
+            return BadRequest();
+        }
+
+        [HttpDelete("destroy/{id}")]
+        public dynamic Delete(int id)
+        {
+            return _repoUser.delete(id);
         }
     }
 }
