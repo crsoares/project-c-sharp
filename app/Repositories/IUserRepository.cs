@@ -5,6 +5,6 @@ namespace Project.Repositories
 {
     public interface IUserRepository : IRepository
     {
-        User findByEmail(string email);
+        UserData findByEmail(string email);
     }
 }

@@ -6,14 +6,18 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Project.Repositories;
 using Project.Security;
+using Project.Data;
+using Project.Models;
 
 namespace Project
 {
@@ -29,6 +33,24 @@ namespace Project
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Configurando o uso da classe de contexto para
+            // acesso às tabelas do ASP.NET Identity Core
+            /*services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseInMemoryDatabase("InMemoryDatabase"));*/
+
+            services.AddEntityFrameworkSqlServer()
+                .AddDbContext<ApplicationDbContext>(
+                    options => options.UseSqlServer(
+                        Configuration.GetConnectionString("DefaultConnection")));
+
+            // Ativando a utilização do ASP.NET Identity, a fim de
+            // permitir a recuperação de seus objetos via injeção de
+            // dependências
+            services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+
             services.AddTransient<UserRepository>();
 
             var signingConfigurations = new SigningConfigurations();

@@ -23,7 +23,7 @@ namespace Project.Controllers
             [FromServices]TokenConfigurations tokenConfigurations
         )
         {
-            bool credentialsValid = false;
+            /*bool credentialsValid = false;
             if (user != null && !String.IsNullOrWhiteSpace(user.Email)) {
                 var userBase = repoUser.findByEmail(user.Email);
                 credentialsValid = (userBase != null && 
@@ -67,7 +67,8 @@ namespace Project.Controllers
                     authenticated = false,
                     message = "Falha ao autenticar"
                 };
-            }
+            }*/
+            return new {};
         }
     }
 }

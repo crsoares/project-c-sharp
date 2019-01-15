@@ -1,12 +1,7 @@
-using System;
-using Dapper.Contrib.Extensions;
-
 namespace Project.Models
 {
-    [Table("dbo.users")]
-    public class User
+    public class UserData
     {
-        [Key]
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }

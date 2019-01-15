@@ -21,7 +21,7 @@ namespace Project.Controllers
             _repoUser = repoUser;
         }
 
-        [Authorize("Bearer")]
+        // [Authorize("Bearer")]
         [HttpGet("all")]
         public IEnumerable<User> Get()
         {
@@ -35,16 +35,16 @@ namespace Project.Controllers
             return _repoUser.find(id);
         }
 
-        [Authorize("Bearer")]
+        // [Authorize("Bearer")]
         [HttpPost("store")]
-        public dynamic Post(User user)
+        public dynamic Post(UserData user)
         {
             return _repoUser.create(user);
         }
 
         [Authorize("Bearer")]
         [HttpPut("update/{id}")]
-        public dynamic Put(int id, User user)
+        public dynamic Put(int id, UserData user)
         {
             var result = _repoUser.update(id, user);
 
