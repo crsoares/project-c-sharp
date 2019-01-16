@@ -1,32 +1,51 @@
-using Project.Models;
-using System.Data.SqlClient;
-using Dapper.Contrib.Extensions;
-using Microsoft.Extensions.Configuration;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+using Project.Data;
+using Project.Contracts;
 
 namespace Project.Repositories
 {
-    public class BaseRepository
+    public class BaseRepository<TEntity> : IRepository<TEntity> where TEntity : class, IEntity
     {
-        protected IConfiguration _config;
-         public BaseRepository(IConfiguration configuration)
-         {
-             _config = configuration;
-         }
+        private readonly CodingEntityDbContext _dbContext;
 
-         public dynamic all()
-         {
-             using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-             {
-                return conexao.GetAll<User>();
-             }
-         }
+        public BaseRepository(CodingEntityDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-         public dynamic find(int id)
-         {
-             using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-             {
-                return conexao.Get<User>(id);
-             }
-         }
+        public IQueryable<TEntity> GetAll()
+        {
+            return _dbContext.Set<TEntity>().AsNoTracking();
+        }
+
+        public async Task<TEntity> GetById(int id)
+        {
+            return await _dbContext.Set<TEntity>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
+
+        public async Task Create (TEntity entity)
+        {
+            await _dbContext.Set<TEntity>().AddAsync(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task Update(int id, TEntity entity)
+        {
+            _dbContext.Set<TEntity>().Update(entity);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task Delete(int id)
+        {
+            var entity = await _dbContext.Set<TEntity>().FindAsync(id);
+            _dbContext.Set<TEntity>().Remove(entity);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
