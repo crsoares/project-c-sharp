@@ -1,6 +1,7 @@
 ﻿using System;
 using Project.Models;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Dapper.Contrib.Extensions;
 using System.Collections.Generic;
@@ -14,52 +15,64 @@ namespace Project.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private IUserRepository _repoUser;
+        private UserRepository _repoUser;
 
         public UserController([FromServices]UserRepository repoUser)
         {
             _repoUser = repoUser;
         }
 
-        // [Authorize("Bearer")]
+        [Authorize("Bearer")]
         [HttpGet("all")]
         public IEnumerable<User> Get()
         {
-            return _repoUser.all();
+            return _repoUser.GetAll();
         }
 
         [Authorize("Bearer")]
         [HttpGet("find/{id}")]
-        public User GetUser(int id)
+        public async Task<dynamic> GetUser(string id)
         {
-            return _repoUser.find(id);
+            var result = await _repoUser.GetById(id);
+
+            if (result == null) {
+                return NotFound();
+            }
+
+            return result;
         }
 
-        // [Authorize("Bearer")]
+        [Authorize("Bearer")]
         [HttpPost("store")]
-        public dynamic Post(UserData user)
+        public dynamic Post(User user)
         {
             return _repoUser.create(user);
         }
 
         [Authorize("Bearer")]
         [HttpPut("update/{id}")]
-        public dynamic Put(int id, UserData user)
+        public async Task<dynamic> Put(string id, User user)
         {
-            var result = _repoUser.update(id, user);
-
-            if (result) {
-                return user;
+            var result = await _repoUser.Update(id, user);
+            
+            if (result == false) {
+                return NotFound();
             }
 
-            return BadRequest();
+            return "Usuário alterado!";
         }
 
         [Authorize("Bearer")]
         [HttpDelete("destroy/{id}")]
-        public dynamic Delete(int id)
+         public async Task<dynamic> Delete(string id)
         {
-            return _repoUser.delete(id);
+            var result = await _repoUser.Delete(id);
+
+            if (result) {
+                return "Usuário excluido!";
+            }
+
+            return NotFound();
         }
     }
 }
