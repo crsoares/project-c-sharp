@@ -1,76 +1,79 @@
 using System;
-using Dapper;
 using System.Linq;
-using Project.Models;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
-using Dapper.Contrib.Extensions;
-using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
-
-using Microsoft.AspNetCore.Identity;
 using Project.Data;
+using Project.Models;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Project.Repositories
 {
-    public class UserRepository : BaseRepository, IUserRepository 
+    public class UserRepository
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        protected readonly ApplicationDbContext _dbContext;
+        protected readonly UserManager<User> _userManager;
         public UserRepository(
-            ApplicationDbContext context,
-            UserManager<User> userManager,
-            IConfiguration configuration
-        ) : base(configuration)
+            ApplicationDbContext dbContext,
+            UserManager<User> userManager
+        )
         {
-            _context = context;
+            _dbContext = dbContext;
             _userManager = userManager;
         }
 
-        new public dynamic all()
+        public IQueryable<User> GetAll()
         {
-            return _context.Users.ToList();
+            return _dbContext.Set<User>().AsNoTracking();
         }
 
-        public dynamic create(dynamic obj)
+        public async Task<User> GetById(string id)
         {
-            var user = new User(){
-                    UserName = obj.Name,
-                    Email = obj.Email,
-                    EmailConfirmed = true
-                };
+            return await _dbContext.Set<User>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.Id == id);
+        }
 
+        public dynamic create(User obj)
+        {
             var result = _userManager
-                .CreateAsync(user, obj.Password)
+                .CreateAsync(obj, obj.PasswordHash)
                 .Result;
 
             return result.Succeeded;
         }
 
-        public dynamic update(int id, dynamic obj)
+        public async Task<dynamic> Update(string id, User obj)
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-            {
-                var objUser = new UserData(){
-                    Id = id,
-                    Name = obj.Name,
-                    Email = obj.Email,
-                    Password = obj.Password
-                };
-                
-                return conexao.Update(objUser);
+            var user = await _dbContext.Set<User>().FindAsync(id);
+
+            if (user == null) {
+                return false;
+            } else {
+                user.UserName = obj.UserName;
+                user.Email = obj.Email;
+                user.NormalizedUserName = obj.UserName;
+                user.NormalizedEmail = obj.Email;
+                await _userManager.UpdateAsync(user);
+
+                return true;
             }
         }
 
-        public dynamic delete(int id)
+        public async Task<dynamic> Delete(string id)
         {
-            using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
-            {
-                return conexao.Delete(new UserData(){ Id = id });
+            var entity = await _dbContext.Set<User>().FindAsync(id);
+
+            if (entity == null) {
+                return false;
             }
+
+            _dbContext.Set<User>().Remove(entity);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
 
-        public UserData findByEmail(string email)
+        /*public UserData findByEmail(string email)
         {
             using (SqlConnection conexao = new SqlConnection(_config.GetConnectionString("Project")))
             {
@@ -80,6 +83,6 @@ namespace Project.Repositories
                     "WHERE email = @Email", new { Email = email }
                 );
             }
-        }
+        }*/
     }
 }
