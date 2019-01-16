@@ -1,12 +1,15 @@
+using System.Linq;
+using System.Threading.Tasks;
+
 namespace Project.Contracts
 {
-    public interface IRepository
+    public interface IRepository<TEntity> where TEntity : class
     {
-        dynamic all();
-        dynamic find(int id);
-        dynamic create(dynamic obj);
-        dynamic update(int id, dynamic obj);
-        dynamic delete(int id);
+        IQueryable<TEntity> GetAll();
+        Task<TEntity> GetById(int id);
+        Task Create(TEntity entity);
+        Task Update(int id, TEntity entity);
+        Task Delete(int id);
 
     }
 }
