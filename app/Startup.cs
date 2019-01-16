@@ -41,7 +41,7 @@ namespace Project
             services.AddEntityFrameworkSqlServer()
                 .AddDbContext<ApplicationDbContext>(
                     options => options.UseSqlServer(
-                        Configuration.GetConnectionString("DefaultConnection")));
+                        Configuration.GetConnectionString("Project")));
 
             // Ativando a utilização do ASP.NET Identity, a fim de
             // permitir a recuperação de seus objetos via injeção de
