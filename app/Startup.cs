@@ -31,10 +31,18 @@ namespace Project
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkSqlServer()
+            // Conexão com banco de dados SqlServer
+            /*services.AddEntityFrameworkSqlServer()
                 .AddDbContext<ApplicationDbContext>(
                     options => options.UseSqlServer(
-                        Configuration.GetConnectionString("Project")));
+                        Configuration.GetConnectionString("Project")));*/
+
+            // Conexão com banco de dados Mysql
+            services.AddDbContextPool<ApplicationDbContext>(
+                options => options.UseMySql(
+                    Configuration.GetConnectionString("ProjectMysql")
+                )
+            );
 
             // Ativando a utilização do ASP.NET Identity, a fim de
             // permitir a recuperação de seus objetos via injeção de
