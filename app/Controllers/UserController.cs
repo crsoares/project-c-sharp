@@ -13,6 +13,7 @@ namespace Project.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize("Bearer")]
     public class UserController : ControllerBase
     {
         private UserRepository _repoUser;
@@ -22,14 +23,12 @@ namespace Project.Controllers
             _repoUser = repoUser;
         }
 
-        [Authorize("Bearer")]
         [HttpGet("all")]
         public IEnumerable<User> Get()
         {
             return _repoUser.GetAll();
         }
 
-        [Authorize("Bearer")]
         [HttpGet("find/{id}")]
         public async Task<dynamic> GetUser(string id)
         {
@@ -42,14 +41,12 @@ namespace Project.Controllers
             return result;
         }
 
-        [Authorize("Bearer")]
         [HttpPost("store")]
         public dynamic Post(User user)
         {
             return _repoUser.create(user);
         }
 
-        [Authorize("Bearer")]
         [HttpPut("update/{id}")]
         public async Task<dynamic> Put(string id, User user)
         {
@@ -62,7 +59,6 @@ namespace Project.Controllers
             return "Usuário alterado!";
         }
 
-        [Authorize("Bearer")]
         [HttpDelete("destroy/{id}")]
          public async Task<dynamic> Delete(string id)
         {
