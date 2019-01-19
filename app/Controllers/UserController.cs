@@ -35,7 +35,7 @@ namespace Project.Controllers
             var result = await _repoUser.GetById(id);
 
             if (result == null) {
-                return NotFound();
+                return new BadRequestObjectResult("Usuário não encontrado.");
             }
 
             return result;
@@ -44,7 +44,13 @@ namespace Project.Controllers
         [HttpPost("store")]
         public dynamic Post(User user)
         {
-            return _repoUser.create(user);
+            var result = _repoUser.create(user);
+
+            if (result) {
+                return Ok(new { message = "Usuário cadastrado!" });
+            }
+
+            return new BadRequestObjectResult("Não foi possivel cadastrar o usuário!");
         }
 
         [HttpPut("update/{id}")]
@@ -53,10 +59,10 @@ namespace Project.Controllers
             var result = await _repoUser.Update(id, user);
             
             if (result == false) {
-                return NotFound();
+                return new BadRequestObjectResult("Usuário não encontrado.");
             }
 
-            return "Usuário alterado!";
+            return Ok(new { message = "Usuário alterado!" });
         }
 
         [HttpDelete("destroy/{id}")]
@@ -65,10 +71,10 @@ namespace Project.Controllers
             var result = await _repoUser.Delete(id);
 
             if (result) {
-                return "Usuário excluido!";
+                return Ok(new { message = "Usuário excluido!" });
             }
 
-            return NotFound();
+            return new BadRequestObjectResult("Usuário não encontrado!");
         }
     }
 }
